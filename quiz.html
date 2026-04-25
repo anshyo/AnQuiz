@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnQuiz — Live Quiz Platform</title>
+<title>QuizPulse — Live Quiz Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #939393;
+    --bg: #F5F2EC;
     --surface: #FFFFFF;
     --surface2: #EDEBE4;
     --border: #D8D4C8;
@@ -44,7 +44,7 @@
 
   .brand {
     font-family: 'Syne', sans-serif;
-    font-size: 26px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -56,18 +56,12 @@
     font-family: 'Syne', sans-serif;
     font-size: clamp(42px, 8vw, 88px);
     font-weight: 800;
-    line-height: 1.2;
+    line-height: 0.95;
     text-align: center;
     letter-spacing: -0.03em;
     color: var(--ink);
-    transition: 0.3s;
     margin-bottom: 20px;
   }
-  .landing-card:hover{
-    line-height: 1.4;
-    transition: 0.3s;
-  }
-
 
   .landing-title span {
     color: var(--accent);
@@ -920,13 +914,129 @@
   #mcq-options, #text-answer-section { display: none; }
 
   .correct-marker { font-size: 11px; font-weight: 600; color: var(--green); background: #dcfce7; padding: 2px 8px; border-radius: 4px; }
+
+  /* ── FLOATING BG ── */
+  #landing { position: relative; overflow: hidden; }
+
+  .floater {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .floater-blob {
+    background: rgba(232, 64, 12, 0.07);
+    filter: blur(40px);
+  }
+
+  .floater-ring {
+    border: 1.5px solid rgba(232, 64, 12, 0.15);
+    background: transparent;
+    filter: none;
+  }
+
+  .floater-dot {
+    background: var(--accent);
+    opacity: 0.18;
+    filter: none;
+  }
+
+  .floater-sq {
+    border-radius: 8px;
+    border: 1.5px solid rgba(43, 108, 176, 0.14);
+    background: transparent;
+    transform-origin: center;
+  }
+
+  @keyframes drift1 {
+    0%,100% { transform: translate(0,0) rotate(0deg); }
+    33%      { transform: translate(30px,-40px) rotate(8deg); }
+    66%      { transform: translate(-20px,20px) rotate(-5deg); }
+  }
+  @keyframes drift2 {
+    0%,100% { transform: translate(0,0) rotate(0deg); }
+    40%      { transform: translate(-35px,25px) rotate(-10deg); }
+    75%      { transform: translate(18px,-30px) rotate(6deg); }
+  }
+  @keyframes drift3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(20px,35px) scale(1.1); }
+  }
+  @keyframes drift4 {
+    0%,100% { transform: translate(0,0) rotate(0deg) scale(1); }
+    30%      { transform: translate(-25px,-20px) rotate(15deg) scale(0.9); }
+    70%      { transform: translate(15px,30px) rotate(-8deg) scale(1.05); }
+  }
+  @keyframes drift5 {
+    0%,100% { transform: translate(0,0); }
+    50%      { transform: translate(40px,-15px); }
+  }
+  @keyframes pulsering {
+    0%,100% { opacity: 0.15; transform: scale(1); }
+    50%      { opacity: 0.05; transform: scale(1.15); }
+  }
+
+  .f1 { animation: drift1 14s ease-in-out infinite; }
+  .f2 { animation: drift2 18s ease-in-out infinite; }
+  .f3 { animation: drift3 11s ease-in-out infinite; }
+  .f4 { animation: drift4 16s ease-in-out infinite; }
+  .f5 { animation: drift5 9s ease-in-out infinite; }
+  .fr { animation: pulsering 6s ease-in-out infinite; }
+
+  #landing > *:not(.floater) { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
 
 <!-- LANDING -->
 <div id="landing">
-  <div class="brand">AnQuiz</div>
+
+  <!-- Floating background decorations -->
+  <!-- Big soft blobs -->
+  <div class="floater floater-blob f1" style="width:420px;height:420px;top:-120px;left:-140px;"></div>
+  <div class="floater floater-blob f2" style="width:360px;height:360px;bottom:-80px;right:-100px;background:rgba(43,108,176,0.06);"></div>
+  <div class="floater floater-blob f3" style="width:220px;height:220px;bottom:15%;left:8%;background:rgba(26,122,74,0.06);"></div>
+
+  <!-- Rings -->
+  <div class="floater floater-ring fr" style="width:200px;height:200px;top:8%;right:12%;"></div>
+  <div class="floater floater-ring fr f2" style="width:110px;height:110px;bottom:22%;left:14%;border-color:rgba(43,108,176,0.18);animation-delay:-3s;"></div>
+  <div class="floater floater-ring fr" style="width:60px;height:60px;top:30%;left:6%;animation-delay:-1.5s;"></div>
+
+  <!-- Small dots -->
+  <div class="floater floater-dot f4" style="width:10px;height:10px;top:18%;right:22%;"></div>
+  <div class="floater floater-dot f5" style="width:7px;height:7px;top:72%;right:18%;background:var(--accent2);opacity:0.22;"></div>
+  <div class="floater floater-dot f3" style="width:12px;height:12px;top:60%;left:5%;animation-delay:-4s;"></div>
+  <div class="floater floater-dot f1" style="width:5px;height:5px;top:40%;right:6%;animation-delay:-2s;"></div>
+  <div class="floater floater-dot f2" style="width:8px;height:8px;bottom:28%;left:22%;background:var(--green);opacity:0.2;animation-delay:-7s;"></div>
+
+  <!-- Squares -->
+  <div class="floater floater-sq f4" style="width:40px;height:40px;top:15%;left:20%;animation-delay:-5s;"></div>
+  <div class="floater floater-sq f2" style="width:24px;height:24px;bottom:30%;right:10%;border-color:rgba(232,64,12,0.18);animation-delay:-2s;"></div>
+  <div class="floater floater-sq f5" style="width:16px;height:16px;top:55%;right:30%;border-color:rgba(26,122,74,0.18);animation-delay:-8s;"></div>
+
+  <!-- Grid of tiny dots (decorative cluster) -->
+  <svg style="position:absolute;top:20%;right:5%;opacity:0.12;pointer-events:none;" width="80" height="80" viewBox="0 0 80 80">
+    <g fill="var(--accent)">
+      <circle cx="8" cy="8" r="2.5"/><circle cx="24" cy="8" r="2.5"/><circle cx="40" cy="8" r="2.5"/>
+      <circle cx="56" cy="8" r="2.5"/><circle cx="72" cy="8" r="2.5"/>
+      <circle cx="8" cy="24" r="2.5"/><circle cx="24" cy="24" r="2.5"/><circle cx="40" cy="24" r="2.5"/>
+      <circle cx="56" cy="24" r="2.5"/><circle cx="72" cy="24" r="2.5"/>
+      <circle cx="8" cy="40" r="2.5"/><circle cx="24" cy="40" r="2.5"/><circle cx="40" cy="40" r="2.5"/>
+      <circle cx="56" cy="40" r="2.5"/><circle cx="72" cy="40" r="2.5"/>
+      <circle cx="8" cy="56" r="2.5"/><circle cx="24" cy="56" r="2.5"/><circle cx="40" cy="56" r="2.5"/>
+      <circle cx="56" cy="56" r="2.5"/><circle cx="72" cy="56" r="2.5"/>
+    </g>
+  </svg>
+  <svg style="position:absolute;bottom:15%;left:3%;opacity:0.1;pointer-events:none;" width="56" height="56" viewBox="0 0 56 56">
+    <g fill="var(--accent2)">
+      <circle cx="8" cy="8" r="2.5"/><circle cx="24" cy="8" r="2.5"/><circle cx="40" cy="8" r="2.5"/>
+      <circle cx="8" cy="24" r="2.5"/><circle cx="24" cy="24" r="2.5"/><circle cx="40" cy="24" r="2.5"/>
+      <circle cx="8" cy="40" r="2.5"/><circle cx="24" cy="40" r="2.5"/><circle cx="40" cy="40" r="2.5"/>
+    </g>
+  </svg>
+
+  <div class="brand">QuizPulse</div>
   <h1 class="landing-title">Live Quiz,<span>Real Time.</span></h1>
   <p class="landing-sub">Host interactive quizzes with custom rounds, timers, and instant responses.</p>
   <div class="landing-cards">
