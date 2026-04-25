@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnQuiz — Live Quiz Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #939393;
+    --surface: #FFFFFF;
+    --surface2: #EDEBE4;
+    --border: #D8D4C8;
+    --ink: #1A1814;
+    --ink2: #5C5850;
+    --accent: #E8400C;
+    --accent2: #2B6CB0;
+    --green: #1A7A4A;
+    --yellow: #F5A623;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── LANDING ── */
+  #landing {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+  }
+
+  .landing-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 8vw, 88px);
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    transition: 0.3s;
+    margin-bottom: 20px;
+  }
+  .landing-card:hover{
+    line-height: 1.4;
+    transition: 0.3s;
+  }
+
+
+  .landing-title span {
+    color: var(--accent);
+    display: block;
+  }
+
+  .landing-sub {
+    font-size: 16px;
+    color: var(--ink2);
+    text-align: center;
+    max-width: 400px;
+    line-height: 1.6;
+    margin-bottom: 56px;
+    font-weight: 300;
+  }
+
+  .landing-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .landing-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 40px;
+    width: 260px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .landing-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+    z-index: 0;
+  }
+
+  .landing-card:hover::before { transform: translateY(0); }
+  .landing-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .landing-card:hover * { color: #fff !important; }
+
+  .landing-card > * { position: relative; z-index: 1; transition: color 0.2s; }
+
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+    display: block;
+    transition: transform 0.2s;
+  }
+  .landing-card:hover .card-icon { transform: scale(1.15) rotate(-5deg); }
+
+  .card-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+
+  /* ── SHARED LAYOUT ── */
+  .app-shell { display: none; min-height: 100vh; flex-direction: column; }
+  .app-shell.active { display: flex; }
+
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .topbar-brand span { color: var(--accent); }
+
+  .topbar-role {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+
+  .topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: #c73408; border-color: #c73408; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,64,12,0.3); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--border);
+  }
+  .btn-secondary:hover { background: var(--surface2); border-color: #bbb; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink2);
+    border-color: transparent;
+    padding: 9px 14px;
+  }
+  .btn-ghost:hover { background: var(--surface2); color: var(--ink); }
+
+  .btn-success { background: var(--green); color: white; border-color: var(--green); }
+  .btn-success:hover { background: #145f39; }
+
+  .btn-danger { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+  .btn-danger:hover { background: #fecaca; }
+
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+  .main-content { flex: 1; padding: 32px; max-width: 1100px; width: 100%; margin: 0 auto; }
+
+  /* ── ADMIN PANEL ── */
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 20px 24px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .panel-body { padding: 24px; }
+
+  .form-row { margin-bottom: 18px; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink2);
+    margin-bottom: 7px;
+  }
+
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    border-color: var(--accent);
+    background: white;
+  }
+
+  .form-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+  .option-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .option-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    background: var(--ink2);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .option-row input[type="radio"] { display: none; }
+  .option-row input[type="radio"]:checked + .option-label { background: var(--green); }
+
+  .option-correct-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .inline-row { display: flex; gap: 12px; }
+  .inline-row .form-row { flex: 1; }
+
+  /* Question List */
+  .q-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .q-item {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: border-color 0.15s;
+    animation: slideIn 0.25s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    background: var(--accent);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .q-info { flex: 1; min-width: 0; }
+  .q-text { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .q-meta { font-size: 11px; color: var(--ink2); display: flex; gap: 10px; }
+  .q-badge { background: var(--surface2); padding: 2px 8px; border-radius: 4px; }
+
+  .q-actions { display: flex; gap: 4px; }
+  .q-del-btn { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 14px; padding: 4px; border-radius: 5px; transition: background 0.15s; }
+  .q-del-btn:hover { background: #fee2e2; }
+
+  /* Session Control */
+  .session-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+    flex-shrink: 0;
+  }
+  .status-dot.live { background: var(--accent); animation: pulse 1.4s infinite; }
+  .status-dot.paused { background: var(--yellow); }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,64,12,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(232,64,12,0); }
+  }
+
+  .status-text { font-size: 13px; font-weight: 500; }
+
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--ink2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* Participant List */
+  .participant-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+
+  .participant-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    animation: slideIn 0.2s ease;
+    transition: border-color 0.2s;
+  }
+
+  .participant-item.answered { border-color: var(--green); background: #f0fdf4; }
+  .participant-item.missed { border-color: #fecaca; background: #fff5f5; }
+
+  .p-name { font-size: 13px; font-weight: 500; }
+  .p-status { font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 600; }
+  .p-status.waiting { background: var(--surface2); color: var(--ink2); }
+  .p-status.answered { background: #dcfce7; color: var(--green); }
+  .p-status.missed { background: #fee2e2; color: #dc2626; }
+
+  /* Responses */
+  .response-list { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; }
+
+  .response-card {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    animation: slideIn 0.25s ease;
+  }
+
+  .response-card.correct { border-color: var(--green); background: #f0fdf4; }
+  .response-card.wrong { border-color: #fca5a5; background: #fff5f5; }
+
+  .response-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .response-name { font-size: 13px; font-weight: 600; }
+  .response-answer { font-size: 13px; color: var(--ink2); }
+  .response-time { font-size: 11px; color: var(--ink2); }
+
+  .correct-badge { font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 100px; }
+  .correct-badge.yes { background: #dcfce7; color: var(--green); }
+  .correct-badge.no { background: #fee2e2; color: #dc2626; }
+
+  /* ── PARTICIPANT VIEW ── */
+  .join-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 40px 20px;
+  }
+
+  .join-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 48px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .join-icon { font-size: 48px; margin-bottom: 20px; display: block; }
+
+  .join-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .join-sub { font-size: 14px; color: var(--ink2); margin-bottom: 32px; line-height: 1.5; }
+
+  /* Quiz View */
+  .quiz-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 32px 20px;
+  }
+
+  .quiz-header {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .round-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink2);
+    background: var(--surface2);
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  /* Timer Ring */
+  .timer-wrap {
+    position: relative;
+    width: 68px;
+    height: 68px;
+  }
+
+  .timer-svg { width: 68px; height: 68px; transform: rotate(-90deg); }
+
+  .timer-track { fill: none; stroke: var(--border); stroke-width: 5; }
+  .timer-bar {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 188;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s;
+  }
+
+  .timer-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: var(--shadow);
+    animation: cardIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-number-chip {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .q-question {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 32px;
+    letter-spacing: -0.01em;
+  }
+
+  .options-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: white;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(232,64,12,0.12);
+  }
+
+  .option-btn.selected {
+    border-color: var(--accent2);
+    background: #EFF6FF;
+    color: var(--accent2);
+  }
+
+  .option-btn.correct-reveal { border-color: var(--green); background: #f0fdf4; color: var(--green); }
+  .option-btn.wrong-reveal { border-color: #fca5a5; background: #fff5f5; color: #dc2626; }
+  .option-btn:disabled { cursor: default; transform: none !important; }
+
+  .opt-key {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: background 0.18s, color 0.18s;
+  }
+
+  .option-btn.selected .opt-key { background: var(--accent2); color: white; }
+  .option-btn.correct-reveal .opt-key { background: var(--green); color: white; }
+  .option-btn.wrong-reveal .opt-key { background: #dc2626; color: white; }
+
+  /* Text answer */
+  .text-answer-wrap { margin-bottom: 28px; }
+
+  /* Waiting Screen */
+  .waiting-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    display: none;
+  }
+
+  .waiting-icon {
+    font-size: 56px;
+    margin-bottom: 24px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .waiting-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .waiting-sub { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+
+  /* Results Screen */
+  .results-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    display: none;
+    text-align: center;
+  }
+
+  .results-trophy { font-size: 64px; margin-bottom: 20px; animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .score-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin: 16px 0;
+  }
+
+  .score-label { font-size: 14px; color: var(--ink2); }
+
+  /* Scoreboard */
+  .scoreboard {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 32px;
+  }
+
+  .scoreboard-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink2);
+    margin-bottom: 14px;
+    text-align: left;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    animation: slideIn 0.3s ease;
+  }
+
+  .score-rank {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink2);
+    width: 28px;
+    text-align: center;
+  }
+
+  .score-rank.gold { color: #F5A623; }
+  .score-rank.silver { color: #8E9AAB; }
+  .score-rank.bronze { color: #C4845A; }
+
+  .score-name { flex: 1; font-size: 14px; font-weight: 500; }
+  .score-pts {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.25s ease;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,24,20,0.5);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 36px;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: var(--shadow-lg);
+    animation: cardIn 0.3s ease;
+  }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .modal-sub { font-size: 14px; color: var(--ink2); margin-bottom: 24px; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* Submitted animation */
+  .submitted-msg {
+    text-align: center;
+    padding: 24px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .submitted-icon { font-size: 48px; margin-bottom: 12px; }
+  .submitted-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .submitted-sub { font-size: 13px; color: var(--ink2); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #bbb; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .admin-grid { grid-template-columns: 1fr; }
+    .main-content { padding: 20px 16px; }
+    .q-card { padding: 24px; }
+    .topbar { padding: 0 16px; }
+    .join-box { padding: 32px 24px; }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--ink2);
+  }
+  .empty-state-icon { font-size: 32px; margin-bottom: 10px; }
+  .empty-state-text { font-size: 13px; }
+
+  .divider { height: 1.5px; background: var(--border); margin: 16px 0; }
+
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; }
+  .tag-blue { background: #EFF6FF; color: var(--accent2); }
+  .tag-green { background: #dcfce7; color: var(--green); }
+  .tag-orange { background: #fff7ed; color: #ea580c; }
+
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { background: white; color: var(--ink); box-shadow: var(--shadow); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* answer type toggle */
+  .type-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .type-pill {
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    color: var(--ink2);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .type-pill.active { background: var(--ink); color: white; border-color: var(--ink); }
+
+  #mcq-options, #text-answer-section { display: none; }
+
+  .correct-marker { font-size: 11px; font-weight: 600; color: var(--green); background: #dcfce7; padding: 2px 8px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="brand">AnQuiz</div>
+  <h1 class="landing-title">Live Quiz,<span>Real Time.</span></h1>
+  <p class="landing-sub">Host interactive quizzes with custom rounds, timers, and instant responses.</p>
+  <div class="landing-cards">
+    <div class="landing-card" onclick="enterAdmin()">
+      <span class="card-icon">🎛️</span>
+      <div class="card-label">Admin</div>
+      <div class="card-desc">Create questions, manage rounds, and view live responses</div>
+    </div>
+    <div class="landing-card" onclick="enterParticipant()">
+      <span class="card-icon">🙋</span>
+      <div class="card-label">Participant</div>
+      <div class="card-desc">Join the quiz and answer questions before time runs out</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="app-shell" id="adminShell">
+  <div class="topbar">
+    <div class="topbar-brand">Quiz<span>Pulse</span></div>
+    <div class="topbar-actions">
+      <span class="topbar-role">Admin Panel</span>
+      <button class="btn btn-ghost" onclick="goHome()">← Exit</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="admin-grid">
+      <!-- LEFT: Question Builder + Queue -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- Question Builder -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Question Builder</div>
+            <div class="type-pills">
+              <button class="type-pill active" onclick="setQType('mcq',this)">MCQ</button>
+              <button class="type-pill" onclick="setQType('text',this)">Text</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-row">
+              <label class="form-label">Question</label>
+              <textarea class="form-textarea" id="qText" placeholder="Type your question here…"></textarea>
+            </div>
+
+            <!-- MCQ Options -->
+            <div id="mcq-options">
+              <div class="form-row">
+                <label class="form-label">Answer Options <span style="color:var(--ink2);font-weight:400;text-transform:none;letter-spacing:0;">(mark correct →)</span></label>
+                <div id="optionsList"></div>
+                <button class="btn btn-ghost" onclick="addOption()" style="margin-top:6px;font-size:12px;padding:6px 12px;">+ Add Option</button>
+              </div>
+            </div>
+
+            <!-- Text Answer -->
+            <div id="text-answer-section">
+              <div class="form-row">
+                <label class="form-label">Correct Answer (for auto-check)</label>
+                <input type="text" class="form-input" id="textCorrectAnswer" placeholder="Leave blank to manually review">
+              </div>
+            </div>
+
+            <div class="inline-row">
+              <div class="form-row">
+                <label class="form-label">Timer (seconds)</label>
+                <input type="number" class="form-input" id="qTimer" value="30" min="5" max="300">
+              </div>
+              <div class="form-row">
+                <label class="form-label">Points</label>
+                <input type="number" class="form-input" id="qPoints" value="10" min="1">
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="addQuestion()" style="width:100%;">+ Add to Queue</button>
+          </div>
+        </div>
+
+        <!-- Question Queue -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Question Queue</div>
+            <span class="tag tag-blue" id="queueCount">0 questions</span>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div class="q-list" id="questionList">
+              <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-text">No questions yet. Build one above.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Responses Panel -->
+        <div class="panel" id="responsesPanel" style="display:none;">
+          <div class="panel-header">
+            <div class="panel-title">Live Responses</div>
+            <span class="tag tag-green" id="responseCount">0 answered</span>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div class="response-list" id="responseList">
+              <div class="empty-state"><div class="empty-state-text">Waiting for answers…</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Session Control -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Session Control</div></div>
+          <div class="panel-body">
+            <div class="session-status">
+              <div class="status-dot" id="statusDot"></div>
+              <div class="status-text" id="statusText">No session running</div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-box">
+                <div class="stat-val" id="statPlayers">0</div>
+                <div class="stat-label">Players</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-val" id="statRound">—</div>
+                <div class="stat-label">Round</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-val" id="statAnswered">0</div>
+                <div class="stat-label">Answered</div>
+              </div>
+            </div>
+
+            <!-- Current Q progress -->
+            <div id="currentQInfo" style="display:none;margin-bottom:16px;background:var(--bg);border-radius:10px;padding:14px;">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink2);font-weight:600;margin-bottom:6px;">Current Question</div>
+              <div id="currentQPreview" style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:8px;"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div class="timer-wrap" style="width:48px;height:48px;">
+                  <svg class="timer-svg" style="width:48px;height:48px;" viewBox="0 0 48 48">
+                    <circle class="timer-track" cx="24" cy="24" r="20"/>
+                    <circle class="timer-bar" id="adminTimerBar" cx="24" cy="24" r="20" style="stroke-dasharray:125.6;stroke-dashoffset:0;"/>
+                  </svg>
+                  <div class="timer-num" id="adminTimerNum" style="font-size:13px;">—</div>
+                </div>
+                <button class="btn btn-danger" id="skipBtn" onclick="skipQuestion()" style="display:none;">Skip →</button>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-primary" id="launchBtn" onclick="launchQuestion()" style="width:100%;">▶ Launch Next Question</button>
+              <button class="btn btn-secondary" id="endSessionBtn" onclick="endSession()" style="width:100%;display:none;">⏹ End Session</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Participants -->
+            <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink2);">Participants</div>
+              <span class="tag tag-orange" id="participantCountTag">0 joined</span>
+            </div>
+            <div class="participant-list" id="participantList">
+              <div class="empty-state"><div class="empty-state-text">Nobody joined yet</div></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="panel" id="leaderboardPanel">
+          <div class="panel-header">
+            <div class="panel-title">Leaderboard</div>
+          </div>
+          <div class="panel-body" style="padding:16px;">
+            <div id="leaderboardList">
+              <div class="empty-state"><div class="empty-state-text">Points tallied after each round</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTICIPANT SHELL -->
+<div class="app-shell" id="participantShell">
+  <div class="topbar">
+    <div class="topbar-brand">Quiz<span>Pulse</span></div>
+    <div class="topbar-actions">
+      <span id="participantNameTag" class="tag tag-blue" style="display:none;"></span>
+      <button class="btn btn-ghost" onclick="goHome()">← Exit</button>
+    </div>
+  </div>
+
+  <!-- Join Screen -->
+  <div class="join-screen" id="joinScreen">
+    <div class="join-box">
+      <span class="join-icon">✏️</span>
+      <div class="join-title">Join the Quiz</div>
+      <div class="join-sub">Enter your name to join the live session and start answering questions.</div>
+      <div class="form-row" style="margin-bottom:16px;">
+        <input type="text" class="form-input" id="participantName" placeholder="Your name…" style="font-size:16px;padding:13px 16px;" onkeydown="if(event.key==='Enter')joinQuiz()">
+      </div>
+      <button class="btn btn-primary" onclick="joinQuiz()" style="width:100%;padding:13px;font-size:15px;">Join Session →</button>
+    </div>
+  </div>
+
+  <!-- Waiting Screen -->
+  <div class="waiting-screen" id="waitingScreen">
+    <div class="waiting-icon">⏳</div>
+    <div class="waiting-title">Hang tight!</div>
+    <div class="waiting-sub">The admin will launch the next question soon.<br>Stay tuned!</div>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div class="quiz-view" id="quizScreen" style="display:none;">
+    <div class="quiz-header">
+      <span class="round-badge" id="roundBadge">Round 1</span>
+      <div class="timer-wrap">
+        <svg class="timer-svg" viewBox="0 0 68 68">
+          <circle class="timer-track" cx="34" cy="34" r="30"/>
+          <circle class="timer-bar" id="participantTimerBar" cx="34" cy="34" r="30"/>
+        </svg>
+        <div class="timer-num" id="participantTimerNum">—</div>
+      </div>
+    </div>
+
+    <div class="q-card" id="participantQCard">
+      <div class="q-number-chip" id="pQChip">Question 1</div>
+      <div class="q-question" id="pQText"></div>
+
+      <div class="options-grid" id="pOptionsGrid"></div>
+      <div class="text-answer-wrap" id="pTextWrap" style="display:none;">
+        <input type="text" class="form-input" id="pTextInput" placeholder="Type your answer…" style="font-size:15px;padding:13px 16px;" onkeydown="if(event.key==='Enter')submitAnswer()">
+      </div>
+
+      <button class="btn btn-primary" id="pSubmitBtn" onclick="submitAnswer()" style="width:100%;padding:13px;font-size:15px;">Submit Answer →</button>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-trophy">🏆</div>
+    <div class="results-title">Session Complete!</div>
+    <div class="score-label">Your final score</div>
+    <div class="score-display" id="myFinalScore">0</div>
+    <div class="score-label">points</div>
+
+    <div class="scoreboard">
+      <div class="scoreboard-title">Final Leaderboard</div>
+      <div id="finalLeaderboard"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="goHome()" style="margin-top:32px;">Play Again</button>
+  </div>
+
+</div>
+
+<!-- MODAL: Confirm End Session -->
+<div class="modal-overlay" id="endModal">
+  <div class="modal">
+    <div class="modal-title">End Session?</div>
+    <div class="modal-sub">This will close the quiz for all participants and show the final leaderboard.</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('endModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmEndSession()">End Session</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const state = {
+  questions: [],
+  participants: {},       // name → { score, answered, status }
+  responses: {},          // questionIdx → [ {name, answer, time, correct} ]
+  session: {
+    active: false,
+    ended: false,
+    currentQIdx: -1,
+    timerInterval: null,
+    timeLeft: 0,
+    totalTime: 0,
+  },
+  currentQType: 'mcq',
+  options: [],            // mcq options for builder
+  correctOptionIdx: 0,
+  myName: '',
+  myScore: 0,
+};
+
+// Cross-tab sync via localStorage
+function broadcast(key, data) {
+  localStorage.setItem(key, JSON.stringify({ ...data, _ts: Date.now() }));
+}
+
+function listen(key, cb) {
+  window.addEventListener('storage', e => {
+    if (e.key === key && e.newValue) {
+      try { cb(JSON.parse(e.newValue)); } catch {}
+    }
+  });
+}
+
+// Poll fallback (same tab doesn't fire storage events)
+const pollers = {};
+function poll(key, cb, ms = 400) {
+  if (pollers[key]) clearInterval(pollers[key]);
+  let last = localStorage.getItem(key);
+  pollers[key] = setInterval(() => {
+    const cur = localStorage.getItem(key);
+    if (cur !== last) { last = cur; try { cb(JSON.parse(cur)); } catch {} }
+  }, ms);
+}
+
+// ─── LANDING ──────────────────────────────────────────────────────────────────
+function enterAdmin() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('adminShell').classList.add('active');
+  initAdminOptions();
+  pollParticipants();
+  pollResponses();
+}
+
+function enterParticipant() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('participantShell').classList.add('active');
+}
+
+function goHome() {
+  location.reload();
+}
+
+// ─── ADMIN: QUESTION BUILDER ──────────────────────────────────────────────────
+function initAdminOptions() {
+  state.options = ['', '', '', ''];
+  state.correctOptionIdx = 0;
+  renderOptions();
+  document.getElementById('mcq-options').style.display = 'block';
+  document.getElementById('text-answer-section').style.display = 'none';
+}
+
+function setQType(type, btn) {
+  state.currentQType = type;
+  document.querySelectorAll('.type-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (type === 'mcq') {
+    document.getElementById('mcq-options').style.display = 'block';
+    document.getElementById('text-answer-section').style.display = 'none';
+  } else {
+    document.getElementById('mcq-options').style.display = 'none';
+    document.getElementById('text-answer-section').style.display = 'block';
+  }
+}
+
+function renderOptions() {
+  const list = document.getElementById('optionsList');
+  const labels = ['A','B','C','D','E','F'];
+  list.innerHTML = state.options.map((opt, i) => `
+    <div class="option-row">
+      <label class="option-correct-check" title="Mark as correct">
+        <input type="radio" name="correctOpt" ${state.correctOptionIdx === i ? 'checked' : ''} onchange="state.correctOptionIdx=${i}">
+        <span class="option-label">${labels[i]}</span>
+      </label>
+      <input type="text" class="form-input" value="${opt}" placeholder="Option ${labels[i]}" oninput="state.options[${i}]=this.value" style="flex:1;">
+      ${state.options.length > 2 ? `<button class="q-del-btn" onclick="removeOption(${i})">✕</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function addOption() {
+  if (state.options.length >= 6) return toast('Max 6 options');
+  state.options.push('');
+  renderOptions();
+}
+
+function removeOption(i) {
+  state.options.splice(i, 1);
+  if (state.correctOptionIdx >= state.options.length) state.correctOptionIdx = 0;
+  renderOptions();
+}
+
+function addQuestion() {
+  const text = document.getElementById('qText').value.trim();
+  if (!text) return toast('Enter a question first');
+
+  const timer = parseInt(document.getElementById('qTimer').value) || 30;
+  const points = parseInt(document.getElementById('qPoints').value) || 10;
+
+  let q = { text, timer, points, type: state.currentQType };
+
+  if (state.currentQType === 'mcq') {
+    const filled = state.options.filter(o => o.trim());
+    if (filled.length < 2) return toast('Add at least 2 options');
+    q.options = [...state.options];
+    q.correctIdx = state.correctOptionIdx;
+  } else {
+    q.correctAnswer = document.getElementById('textCorrectAnswer').value.trim();
+  }
+
+  state.questions.push(q);
+  renderQuestionList();
+  resetBuilder();
+  toast('Question added ✓');
+}
+
+function resetBuilder() {
+  document.getElementById('qText').value = '';
+  document.getElementById('textCorrectAnswer').value = '';
+  document.getElementById('qTimer').value = '30';
+  document.getElementById('qPoints').value = '10';
+  state.options = ['', '', '', ''];
+  state.correctOptionIdx = 0;
+  renderOptions();
+}
+
+function removeQuestion(i) {
+  state.questions.splice(i, 1);
+  renderQuestionList();
+}
+
+function renderQuestionList() {
+  const list = document.getElementById('questionList');
+  const count = state.questions.length;
+  document.getElementById('queueCount').textContent = count + ' question' + (count !== 1 ? 's' : '');
+
+  if (count === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No questions yet. Build one above.</div></div>`;
+    return;
+  }
+
+  list.innerHTML = state.questions.map((q, i) => `
+    <div class="q-item">
+      <div class="q-num">${i + 1}</div>
+      <div class="q-info">
+        <div class="q-text">${q.text}</div>
+        <div class="q-meta">
+          <span class="q-badge">${q.timer}s</span>
+          <span class="q-badge">${q.points} pts</span>
+          <span class="q-badge">${q.type === 'mcq' ? 'MCQ' : 'Text'}</span>
+        </div>
+      </div>
+      <div class="q-actions">
+        <button class="q-del-btn" onclick="removeQuestion(${i})" title="Remove">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── ADMIN: SESSION CONTROL ───────────────────────────────────────────────────
+function launchQuestion() {
+  if (state.questions.length === 0) return toast('Add questions first!');
+
+  const nextIdx = state.session.currentQIdx + 1;
+  if (nextIdx >= state.questions.length) return toast('No more questions in queue');
+
+  if (state.session.timerInterval) {
+    clearInterval(state.session.timerInterval);
+    state.session.timerInterval = null;
+  }
+
+  state.session.active = true;
+  state.session.currentQIdx = nextIdx;
+  const q = state.questions[nextIdx];
+
+  // Reset participant answered status
+  Object.keys(state.participants).forEach(name => {
+    state.participants[name].status = 'waiting';
+    state.participants[name].answered = false;
+  });
+
+  // Broadcast question to participants
+  broadcast('quiz_question', {
+    idx: nextIdx,
+    text: q.text,
+    type: q.type,
+    options: q.options || [],
+    timer: q.timer,
+    points: q.points,
+    round: nextIdx + 1,
+    total: state.questions.length,
+  });
+
+  state.responses[nextIdx] = [];
+  broadcast('quiz_responses', { responses: state.responses });
+
+  // Update UI
+  document.getElementById('statusDot').className = 'status-dot live';
+  document.getElementById('statusText').textContent = `Live — Q${nextIdx + 1} of ${state.questions.length}`;
+  document.getElementById('statRound').textContent = `${nextIdx + 1}/${state.questions.length}`;
+  document.getElementById('currentQInfo').style.display = 'block';
+  document.getElementById('currentQPreview').textContent = q.text;
+  document.getElementById('endSessionBtn').style.display = 'block';
+  document.getElementById('responsesPanel').style.display = 'block';
+  document.getElementById('skipBtn').style.display = 'block';
+
+  const isLast = nextIdx >= state.questions.length - 1;
+  document.getElementById('launchBtn').textContent = isLast ? '▶ Launch Final Question' : `▶ Launch Q${nextIdx + 2}`;
+  document.getElementById('launchBtn').disabled = true;
+
+  document.getElementById('responseList').innerHTML = `<div class="empty-state"><div class="empty-state-text">Waiting for answers…</div></div>`;
+  document.getElementById('responseCount').textContent = '0 answered';
+
+  renderParticipantList();
+  startAdminTimer(q.timer, nextIdx);
+}
+
+function startAdminTimer(seconds, qIdx) {
+  state.session.timeLeft = seconds;
+  state.session.totalTime = seconds;
+  const bar = document.getElementById('adminTimerBar');
+  const num = document.getElementById('adminTimerNum');
+  const circumference = 125.6;
+
+  function tick() {
+    const pct = state.session.timeLeft / state.session.totalTime;
+    bar.style.strokeDashoffset = circumference * (1 - pct);
+    bar.style.stroke = pct > 0.5 ? 'var(--accent)' : pct > 0.25 ? 'var(--yellow)' : '#dc2626';
+    num.textContent = state.session.timeLeft;
+    if (state.session.timeLeft <= 0) {
+      clearInterval(state.session.timerInterval);
+      endCurrentQuestion(qIdx);
+    } else {
+      state.session.timeLeft--;
+    }
+  }
+
+  tick();
+  state.session.timerInterval = setInterval(tick, 1000);
+}
+
+function endCurrentQuestion(qIdx) {
+  broadcast('quiz_question_ended', { idx: qIdx, scores: state.participants });
+  document.getElementById('adminTimerNum').textContent = '0';
+  document.getElementById('adminTimerBar').style.stroke = '#dc2626';
+  document.getElementById('statusDot').className = 'status-dot paused';
+  document.getElementById('statusText').textContent = 'Waiting — review before next launch';
+  document.getElementById('launchBtn').disabled = false;
+  document.getElementById('skipBtn').style.display = 'none';
+
+  const nextIdx = state.session.currentQIdx + 1;
+  if (nextIdx >= state.questions.length) {
+    document.getElementById('launchBtn').textContent = '⏹ All questions done';
+    document.getElementById('launchBtn').disabled = true;
+  }
+
+  // Mark unanswered
+  Object.keys(state.participants).forEach(name => {
+    if (!state.participants[name].answered) {
+      state.participants[name].status = 'missed';
+    }
+  });
+  renderParticipantList();
+  updateLeaderboard();
+}
+
+function skipQuestion() {
+  if (state.session.timerInterval) clearInterval(state.session.timerInterval);
+  endCurrentQuestion(state.session.currentQIdx);
+}
+
+function endSession() {
+  document.getElementById('endModal').classList.add('open');
+}
+
+function confirmEndSession() {
+  closeModal('endModal');
+  if (state.session.timerInterval) clearInterval(state.session.timerInterval);
+  state.session.active = false;
+  state.session.ended = true;
+
+  const scores = Object.entries(state.participants)
+    .map(([name, d]) => ({ name, score: d.score }))
+    .sort((a, b) => b.score - a.score);
+
+  broadcast('quiz_ended', { scores });
+  document.getElementById('statusDot').className = 'status-dot';
+  document.getElementById('statusText').textContent = 'Session ended';
+  document.getElementById('endSessionBtn').style.display = 'none';
+  document.getElementById('launchBtn').style.display = 'none';
+  document.getElementById('currentQInfo').style.display = 'none';
+  toast('Session ended — leaderboard shown to participants');
+}
+
+// ─── ADMIN: PARTICIPANT / RESPONSE POLLING ────────────────────────────────────
+function pollParticipants() {
+  poll('participant_join', data => {
+    if (!state.participants[data.name]) {
+      state.participants[data.name] = { score: 0, answered: false, status: 'waiting' };
+    }
+    updateStats();
+    renderParticipantList();
+    updateLeaderboard();
+  });
+
+  poll('participant_answer', data => {
+    const { name, qIdx, answer, timeTaken } = data;
+    if (!state.responses[qIdx]) state.responses[qIdx] = [];
+
+    const q = state.questions[qIdx];
+    if (!q) return;
+
+    let correct = false;
+    let displayAnswer = answer;
+
+    if (q.type === 'mcq') {
+      correct = parseInt(answer) === q.correctIdx;
+      displayAnswer = q.options[parseInt(answer)] || answer;
+    } else {
+      if (q.correctAnswer) {
+        correct = answer.toLowerCase().trim() === q.correctAnswer.toLowerCase().trim();
+      }
+    }
+
+    const points = correct ? Math.ceil(q.points * (timeTaken / q.timer < 0.5 ? 1 : 0.7)) : 0;
+
+    state.responses[qIdx].push({ name, answer: displayAnswer, timeTaken, correct, points });
+
+    if (state.participants[name]) {
+      state.participants[name].answered = true;
+      state.participants[name].status = 'answered';
+      state.participants[name].score = (state.participants[name].score || 0) + points;
+    }
+
+    updateStats();
+    renderParticipantList();
+    renderResponseList(qIdx);
+    updateLeaderboard();
+    broadcast('quiz_responses', { responses: state.responses });
+  });
+}
+
+function pollResponses() {}
+
+function renderParticipantList() {
+  const list = document.getElementById('participantList');
+  const names = Object.keys(state.participants);
+  document.getElementById('participantCountTag').textContent = names.length + ' joined';
+  document.getElementById('statPlayers').textContent = names.length;
+
+  if (names.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-text">Nobody joined yet</div></div>`;
+    return;
+  }
+  list.innerHTML = names.map(name => {
+    const p = state.participants[name];
+    const statusClass = p.status === 'answered' ? 'answered' : p.status === 'missed' ? 'missed' : '';
+    const statusLabel = p.status === 'answered' ? 'Answered' : p.status === 'missed' ? 'Missed' : 'Waiting';
+    const statusPill = p.status === 'answered' ? 'answered' : p.status === 'missed' ? 'missed' : 'waiting';
+    return `
+      <div class="participant-item ${statusClass}">
+        <div class="p-name">${name}</div>
+        <span class="p-status ${statusPill}">${statusLabel}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderResponseList(qIdx) {
+  const responses = state.responses[qIdx] || [];
+  const list = document.getElementById('responseList');
+  document.getElementById('responseCount').textContent = responses.length + ' answered';
+  document.getElementById('statAnswered').textContent = responses.length;
+
+  if (responses.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-text">No responses yet</div></div>`;
+    return;
+  }
+
+  list.innerHTML = responses.map(r => `
+    <div class="response-card ${r.correct ? 'correct' : 'wrong'}">
+      <div class="response-top">
+        <span class="response-name">${r.name}</span>
+        <span class="correct-badge ${r.correct ? 'yes' : 'no'}">${r.correct ? '✓ Correct' : '✗ Wrong'}</span>
+      </div>
+      <div class="response-answer">${r.answer}</div>
+      <div class="response-time">${r.timeTaken}s to answer · ${r.points || 0} pts</div>
+    </div>
+  `).join('');
+}
+
+function updateStats() {
+  const names = Object.keys(state.participants);
+  document.getElementById('statPlayers').textContent = names.length;
+  const answered = names.filter(n => state.participants[n].answered).length;
+  document.getElementById('statAnswered').textContent = answered;
+}
+
+function updateLeaderboard() {
+  const list = document.getElementById('leaderboardList');
+  const entries = Object.entries(state.participants)
+    .map(([name, d]) => ({ name, score: d.score }))
+    .sort((a, b) => b.score - a.score);
+
+  if (entries.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-text">Points tallied after each round</div></div>`;
+    return;
+  }
+
+  const ranks = ['🥇','🥈','🥉'];
+  list.innerHTML = entries.map((e, i) => `
+    <div class="score-row">
+      <div class="score-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${ranks[i] || i+1}</div>
+      <div class="score-name">${e.name}</div>
+      <div class="score-pts">${e.score} pts</div>
+    </div>
+  `).join('');
+}
+
+// ─── PARTICIPANT ───────────────────────────────────────────────────────────────
+function joinQuiz() {
+  const name = document.getElementById('participantName').value.trim();
+  if (!name) return toast('Enter your name!');
+
+  state.myName = name;
+  document.getElementById('participantNameTag').textContent = name;
+  document.getElementById('participantNameTag').style.display = 'inline-flex';
+  document.getElementById('joinScreen').style.display = 'none';
+  document.getElementById('waitingScreen').style.display = 'flex';
+
+  broadcast('participant_join', { name });
+  toast('Joined! Waiting for the admin to launch a question…');
+
+  listenForQuestion();
+  listenForEnd();
+}
+
+let pTimerInterval = null;
+let pSelectedAnswer = null;
+let pCurrentQIdx = -1;
+let pCurrentQType = 'mcq';
+let pCurrentTimer = 30;
+let pAnswerSubmitted = false;
+
+function listenForQuestion() {
+  listen('quiz_question', showQuestion);
+  poll('quiz_question', showQuestion);
+  listen('quiz_question_ended', onQuestionEnded);
+  poll('quiz_question_ended', onQuestionEnded);
+}
+
+function listenForEnd() {
+  listen('quiz_ended', onSessionEnded);
+  poll('quiz_ended', onSessionEnded);
+}
+
+function showQuestion(data) {
+  if (pCurrentQIdx === data.idx) return; // already showing
+  pCurrentQIdx = data.idx;
+  pSelectedAnswer = null;
+  pAnswerSubmitted = false;
+  pCurrentQType = data.type;
+  pCurrentTimer = data.timer;
+
+  document.getElementById('waitingScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'flex';
+  document.getElementById('resultsScreen').style.display = 'none';
+
+  document.getElementById('pQChip').textContent = `Question ${data.round}`;
+  document.getElementById('pQText').textContent = data.text;
+  document.getElementById('roundBadge').textContent = `Q ${data.round} of ${data.total}`;
+  document.getElementById('pSubmitBtn').disabled = false;
+  document.getElementById('pSubmitBtn').textContent = 'Submit Answer →';
+
+  const labels = ['A','B','C','D','E','F'];
+  if (data.type === 'mcq') {
+    document.getElementById('pOptionsGrid').style.display = 'flex';
+    document.getElementById('pTextWrap').style.display = 'none';
+    document.getElementById('pOptionsGrid').innerHTML = data.options.map((opt, i) => `
+      <button class="option-btn" onclick="selectOption(${i},this)" id="opt_${i}">
+        <span class="opt-key">${labels[i]}</span>
+        ${opt}
+      </button>
+    `).join('');
+  } else {
+    document.getElementById('pOptionsGrid').style.display = 'none';
+    document.getElementById('pTextWrap').style.display = 'block';
+    document.getElementById('pTextInput').value = '';
+    document.getElementById('pTextInput').disabled = false;
+  }
+
+  startParticipantTimer(data.timer);
+}
+
+function selectOption(idx, btn) {
+  if (pAnswerSubmitted) return;
+  pSelectedAnswer = idx;
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function startParticipantTimer(seconds) {
+  if (pTimerInterval) clearInterval(pTimerInterval);
+  let timeLeft = seconds;
+  const bar = document.getElementById('participantTimerBar');
+  const num = document.getElementById('participantTimerNum');
+  const circumference = 188;
+
+  function tick() {
+    const pct = timeLeft / seconds;
+    bar.style.strokeDashoffset = circumference * (1 - pct);
+    bar.style.stroke = pct > 0.5 ? 'var(--accent)' : pct > 0.25 ? 'var(--yellow)' : '#dc2626';
+    num.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(pTimerInterval);
+      autoTimeOut();
+    } else {
+      timeLeft--;
+    }
+  }
+  tick();
+  pTimerInterval = setInterval(tick, 1000);
+}
+
+function autoTimeOut() {
+  if (pAnswerSubmitted) return;
+  document.getElementById('pSubmitBtn').disabled = true;
+  document.getElementById('pSubmitBtn').textContent = "⏱ Time's up!";
+  if (pCurrentQType === 'text') document.getElementById('pTextInput').disabled = true;
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  const qCard = document.getElementById('participantQCard');
+  qCard.innerHTML = `
+    <div class="submitted-msg">
+      <div class="submitted-icon">⏱️</div>
+      <div class="submitted-title">Time's Up!</div>
+      <div class="submitted-sub">You didn't answer in time. Wait for the next question.</div>
+    </div>
+  `;
+}
+
+function submitAnswer() {
+  if (pAnswerSubmitted) return;
+
+  let answer;
+  if (pCurrentQType === 'mcq') {
+    if (pSelectedAnswer === null) return toast('Select an option first!');
+    answer = String(pSelectedAnswer);
+  } else {
+    answer = document.getElementById('pTextInput').value.trim();
+    if (!answer) return toast('Type your answer!');
+  }
+
+  pAnswerSubmitted = true;
+  if (pTimerInterval) clearInterval(pTimerInterval);
+
+  const timerNum = parseInt(document.getElementById('participantTimerNum').textContent) || 0;
+  const timeTaken = pCurrentTimer - timerNum;
+
+  broadcast('participant_answer', {
+    name: state.myName,
+    qIdx: pCurrentQIdx,
+    answer,
+    timeTaken,
+  });
+
+  const qCard = document.getElementById('participantQCard');
+  qCard.innerHTML = `
+    <div class="submitted-msg">
+      <div class="submitted-icon">✅</div>
+      <div class="submitted-title">Answer Submitted!</div>
+      <div class="submitted-sub">Answered in ${timeTaken}s. Waiting for results…</div>
+    </div>
+  `;
+}
+
+function onQuestionEnded(data) {
+  // Update score display
+  const myData = data.scores && data.scores[state.myName];
+  if (myData) state.myScore = myData.score;
+}
+
+function onSessionEnded(data) {
+  if (pTimerInterval) clearInterval(pTimerInterval);
+  document.getElementById('quizScreen').style.display = 'none';
+  document.getElementById('waitingScreen').style.display = 'none';
+  document.getElementById('resultsScreen').style.display = 'flex';
+
+  document.getElementById('myFinalScore').textContent = state.myScore || 0;
+
+  const scores = data.scores || [];
+  const ranks = ['🥇','🥈','🥉'];
+  document.getElementById('finalLeaderboard').innerHTML = scores.map((e, i) => `
+    <div class="score-row" style="${e.name === state.myName ? 'border-color:var(--accent2);background:#EFF6FF;' : ''}">
+      <div class="score-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${ranks[i] || i+1}</div>
+      <div class="score-name">${e.name} ${e.name === state.myName ? '← you' : ''}</div>
+      <div class="score-pts">${e.score} pts</div>
+    </div>
+  `).join('') || '<div class="empty-state"><div class="empty-state-text">No scores yet</div></div>';
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+</script>
+</body>
+</html>
